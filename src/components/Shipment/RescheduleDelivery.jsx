@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { rescheduleDelivery } from "../../services/shipmentService";
 import { toast } from "react-toastify";
 import {
@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 
 const RescheduleDelivery = () => {
-  const [shipmentId, setShipmentId] = useState(0);
+  const [trackingId, setTrackingId] = useState("");
   const [rescheduleData, setRescheduleData] = useState({
     newDate: "",
     instructions: "",
@@ -22,27 +22,27 @@ const RescheduleDelivery = () => {
   };
 
   const handleReschedule = async () => {
-    if (!shipmentId || !rescheduleData.newDate) {
+    if (!trackingId || !rescheduleData.newDate) {
       toast.error("Please fill in all required fields.");
       return;
     }
-
+  
     // Validate that the new date is not in the past
     const currentDate = new Date();
     const selectedDate = new Date(rescheduleData.newDate);
-
-    // Reset time for comparison
     currentDate.setHours(0, 0, 0, 0);
     selectedDate.setHours(0, 0, 0, 0);
-
+  
     if (selectedDate < currentDate) {
       toast.error("The new delivery date cannot be in the past.");
       return;
     }
-
+  
     try {
-      await rescheduleDelivery(shipmentId, rescheduleData);
-      toast.success("Delivery rescheduled successfully!");
+      await rescheduleDelivery(trackingId, rescheduleData);
+      toast.success("Delivery rescheduled successfully! Email notification sent.");
+      setTrackingId("");
+      setRescheduleData({ newDate: "", instructions: "" });
     } catch (error) {
       toast.error("Failed to reschedule delivery.");
     }
@@ -58,9 +58,9 @@ const RescheduleDelivery = () => {
           <Grid item xs={12}>
             <TextField
               fullWidth
-              label="Shipment ID"
-              value={shipmentId}
-              onChange={(e) => setShipmentId(e.target.value)}
+              label="Tracking ID"
+              value={trackingId}
+              onChange={(e) => setTrackingId(e.target.value)}
               required
             />
           </Grid>
